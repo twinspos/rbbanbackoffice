@@ -722,6 +722,46 @@ function ksHist(){
  if(!l.length)return'<div class="empty">Belum ada pengiriman stok</div>';
  return`<table><tr><th>Waktu</th><th>No</th><th>Produk</th><th class="r">Jumlah</th><th>Keterangan</th></tr>${l.map(x=>{const m=String(x.note).match(re);return`<tr><td>${fmtT(x.ts)}</td><td>${esc(m[3])}</td><td>${esc(x.name)}</td><td class="r" style="color:var(--${m[1]==='Kirim ke'?'bad':'ok'})">${m[1]==='Kirim ke'?'−':'+'}${fq(Math.abs(+x.delta||+x.qty||0))}</td><td>${esc(m[1]+' '+m[2])}</td></tr>`}).join('')}</table>`;
 }
+/* ---------- Produk dobel & hapus semua produk (cabang yang sedang dibuka) ---------- */
+const nmKey=n=>String(n||'').toLowerCase().replace(/\s+/g,' ').replace(/\s*([\/\-x])\s*/g,'$1').trim();
+function dupGroups(){
+ const L=D.products.filter(p=>!p.bahan),par=L.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i])),u=(a,b)=>{a=f(a);b=f(b);if(a!==b)par[b]=a};
+ const byN={},byK={};
+ L.forEach((p,i)=>{const n=nmKey(p.name),k=String(p.sku||p.barcode||'').trim();if(n){if(byN[n]!==undefined)u(byN[n],i);else byN[n]=i}if(k){if(byK[k]!==undefined)u(byK[k],i);else byK[k]=i}});
+ const g={};L.forEach((p,i)=>{(g[f(i)]=g[f(i)]||[]).push(p)});
+ return Object.values(g).filter(x=>x.length>1).map(x=>{const keep=x.slice().sort((a,b)=>((+b.stock||0)-(+a.stock||0)))[0];return{keep,drop:x.filter(p=>p!==keep)}});
+}
+let DUP=[];
+function dupOpen(){
+ DUP=dupGroups();
+ if(!DUP.length){alert('Tidak ada produk dobel. Semua nama dan kode produk sudah unik.');return}
+ const nd=sum(DUP,g=>g.drop.length),ms=sum(DUP,g=>sum(g.drop,p=>Math.max(0,+p.stock||0)));
+ dlg(`<h3>Produk Dobel</h3><p class="mut">Ditemukan <b>${DUP.length}</b> nama/kode yang dobel. Disisakan 1 produk per kelompok (yang stoknya paling banyak), <b>${nd}</b> produk lainnya dihapus.${ms?` Stok dari produk yang dihapus (${fq(ms)} unit) <b>dipindahkan</b> ke produk yang disisakan.`:''}</p>
+ <div class="tw" style="max-height:50vh;overflow:auto"><table><tr><th>Disisakan</th><th class="r">Stok</th><th>Dihapus</th></tr>${DUP.slice(0,300).map(g=>`<tr><td><b>${esc(g.keep.name)}</b></td><td class="r">${fq(+g.keep.stock||0)}</td><td>${g.drop.map(p=>esc(p.name)+(+p.stock>0?' <span class="mut">(stok '+fq(+p.stock)+')</span>':'')).join('<br>')}</td></tr>`).join('')}</table></div>${DUP.length>300?'<div class="hint">Menampilkan 300 kelompok pertama.</div>':''}
+ <div class="err" id="dp_e"></div><div class="acts2" style="margin-top:12px"><button class="btn" onclick="closeDlg()">Batal</button><button class="btn pri" onclick="dupGo(this)">Hapus ${nd} produk dobel</button></div>`);
+}
+async function delBulk(ids,btn,label){
+ for(let i=0;i<ids.length;i+=2000){btn.textContent=label+' '+Math.min(i+2000,ids.length)+'/'+ids.length+'…';await pushPost('product_del_bulk',{ids:ids.slice(i,i+2000)})}
+}
+const oldGs=m=>/Jenis data tidak dikenal/.test(m)?m+' (Code.gs belum versi terbaru. Tempel Code.gs baru lalu Deploy ulang.)':m;
+async function dupGo(btn){
+ const e=$('#dp_e');btn.disabled=true;
+ try{
+  const mv=DUP.map(g=>({id:g.keep.id,qty:sum(g.drop,p=>Math.max(0,+p.stock||0))})).filter(x=>x.qty>0&&ksStk(DUP.find(g=>g.keep.id===x.id).keep));
+  for(let i=0;i<mv.length;i+=150){btn.textContent='Memindahkan stok…';await pushPost('stock_bulk',{mode:'add',hppMode:'none',note:'Gabung produk dobel',items:mv.slice(i,i+150)})}
+  await delBulk(DUP.flatMap(g=>g.drop.map(p=>p.id)),btn,'Menghapus');
+  closeDlg();AC.clear();busy=false;try{await load()}catch(_){}render();alert('Produk dobel sudah dibereskan.');
+ }catch(x){btn.disabled=false;btn.textContent='Coba lagi';e.textContent='Gagal: '+oldGs(x.message)}
+}
+async function delAllProd(){
+ const L=D.products.filter(p=>!p.bahan);
+ if(!L.length){alert('Belum ada produk.');return}
+ const t=prompt('Semua '+L.length+' produk di '+brLabel()+' akan dihapus (riwayat penjualan tetap tersimpan).\nKasir cabang ini juga ikut terhapus produknya saat sinkron.\n\nKetik HAPUS untuk melanjutkan:');
+ if(t===null)return;if(t.trim().toUpperCase()!=='HAPUS'){alert('Dibatalkan. Ketik HAPUS (huruf besar) untuk menghapus.');return}
+ dlg('<h3>Menghapus produk…</h3><button class="btn" id="da_b" disabled>Menghapus…</button>');
+ try{await delBulk(L.map(p=>p.id),$('#da_b'),'Menghapus');closeDlg();AC.clear();busy=false;try{await load()}catch(_){}render();alert(L.length+' produk dihapus.')}
+ catch(x){closeDlg();alert('Gagal: '+oldGs(x.message));try{busy=false;await load()}catch(_){}render()}
+}
 /* ---------- Logout otomatis bila tidak ada aktivitas ---------- */
 const ACTK='rbbo_act';
 const idleMin=()=>{const v=cfg.idle;return(v===undefined||v===null||v==='')?30:(+v||0)};   // 0 = nonaktif
@@ -1542,7 +1582,7 @@ function vMProduk(){
  const lowBtn=`<button class="btn ${PM.low?'on':''}" onclick="PM.low=!PM.low;render()">Stok menipis</button>`;
  const tool=isR?`<div class="tool">${search}<span style="margin-left:auto"><button class="btn pri" onclick="prodnForm()">${ic('plus',16)} Catat Produksi</button></span></div>`
   :isB?`<div class="tool">${search}${catSel}${lowBtn}<button class="btn" onclick="exportMProduk()">${ic('dl',16)} CSV</button><button class="btn" onclick="bhOpen()">${ic('plus',16)} Impor Bahan Baku</button><button class="btn" onclick="bkOpen()">${ic('plus',16)} Isi Stok Massal</button><button class="btn pri" onclick="prodForm('',true)">${ic('plus',16)} Tambah Bahan Baku</button></div>`
-  :`<div class="tool">${search}${catSel}${lowBtn}<button class="btn" onclick="exportMProduk()">${ic('dl',16)} CSV</button><button class="btn" onclick="ipOpen()">${ic('plus',16)} Impor Produk</button><button class="btn" onclick="bkOpen()">${ic('plus',16)} Isi Stok Massal</button><button class="btn pri" onclick="prodForm()">${ic('plus',16)} Tambah Produk</button></div>`;
+  :`<div class="tool">${search}${catSel}${lowBtn}<button class="btn" onclick="exportMProduk()">${ic('dl',16)} CSV</button><button class="btn" onclick="ipOpen()">${ic('plus',16)} Impor Produk</button><button class="btn" onclick="bkOpen()">${ic('plus',16)} Isi Stok Massal</button><button class="btn" onclick="dupOpen()">Cek Dobel</button><button class="btn del" onclick="delAllProd()">Hapus Semua</button><button class="btn pri" onclick="prodForm()">${ic('plus',16)} Tambah Produk</button></div>`;
  return tabs+kpi+`<div class="card">${tool}<div class="tw" id="mpt">${mpBody()}</div></div>`+(isR?pkCard():'');
 }
 function mpBody(){return PM.k==='resep'?mpTableR():PM.k==='bahan'?mpTableB(mpFiltered()):mpTable(mpFiltered())}
