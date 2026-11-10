@@ -265,6 +265,18 @@ input,select{background:color-mix(in srgb,var(--tx) 5%,var(--card))}
 [data-theme=dark] .main::before{filter:invert(1);opacity:.05}
 @media(max-width:1000px){.main::before{left:0;background-size:min(320px,70%)}}
 @media(max-width:860px){.rbhero img{width:150px}.rbhero h2{font-size:20px;margin-top:8px}.rbhero p{display:none}}
+/* login: logo di atas, form di bawah (satu kolom, di tengah) */
+.lgs{display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px;gap:2px}
+.lgr .lockbox p.mut{margin:0 0 4px}
+.lgl{background:none!important;min-height:0!important;padding:0!important;width:100%;overflow:visible}
+.lgr{padding:0!important;width:100%;max-width:440px}
+.lgr .lockbox{width:100%}
+.rbhero{padding:0 0 12px;gap:2px}
+.rbhero img{width:120px!important;border-radius:22px}
+.rbhero h2{font-size:22px;margin-top:10px}
+.rbhero p{display:block!important;font-size:13.5px}
+@media(max-width:520px){.rbhero img{width:130px!important}.rbhero h2{font-size:20px}.rbhero p{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -714,7 +726,7 @@ const ini=n=>String(n||'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=
 function render(){
  if(!baseUrl()||!cfg.hp||!cfg.pin||!D){
   $('#app').innerHTML=`<div class="lgs"><div class="lgl">${lgArt()}</div><div class="lgr"><div class="lockbox"><div class="logo" style="color:var(--pri)"><img class="rbimg" src="${RBLOGO}" alt="RB BAN">RB<span style="color:var(--tx)">POS</span></div><p class="mut">Masuk dengan nomor HP dan PIN.</p>
-  ${API_URL?'':`<label>Kode Toko (cukup diisi sekali)</label><input id="u" autocomplete="off" value="${esc(cfg.kode||cfg.url||'')}" placeholder="6 digit dari RB POS">`}
+  ${API_URL?'':`<label>Kode Toko / URL Web App (cukup diisi sekali)</label><input id="u" autocomplete="off" value="${esc(cfg.kode||cfg.home||cfg.url||'')}" placeholder="https://script.google.com/macros/s/.../exec">`}
   <label>Nomor HP</label><input id="h" type="tel" inputmode="numeric" autocomplete="username" value="${esc(cfg.hp||'')}" placeholder="08xxxxxxxxxx">
   <label>PIN</label><input id="t" type="password" autocomplete="current-password" value="" onkeydown="if(event.key==='Enter')doLogin()">
   <div class="err" id="e"></div><button class="btn pri" style="width:100%;margin-top:10px" onclick="doLogin()">Masuk</button>
