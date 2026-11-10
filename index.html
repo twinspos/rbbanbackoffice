@@ -386,14 +386,14 @@ const NAV_ALL=[
  ['Kas & Keuangan',[['cash','Kas Masuk & Keluar','wallet'],['arus','Arus Kas & Rekening','trend'],['shift','Laporan Shift','clock']]],
  ['Akuntansi',[['coa','Daftar Akun (COA)','layers'],['jurnal','Jurnal Umum','file'],['buku','Buku Besar','hist'],['lapkeu','Laporan Keuangan','trend']]],
  ['Karyawan',[['komisi','Komisi','tag'],['gaji','Penggajian','wallet']]],
- ['Data Master',[['mproduk','Produk & Stok','plus'],['mkat','Kategori','tag'],['mpaket','Paket','gift'],['mstok','Riwayat Stok','hist'],['mexp','Expired','clock'],['pelanggan','Pelanggan','users'],['pemasok','Pemasok','store'],['karyawan','Data Karyawan','users'],['rekening','Rekening & Akun Kas','wallet']]],
+ ['Data Master',[['mproduk','Produk & Stok','plus'],['mkat','Kategori','tag'],['mpaket','Paket','gift'],['mstok','Riwayat Stok','hist'],['mkirim','Kirim Stok','layers'],['mexp','Expired','clock'],['pelanggan','Pelanggan','users'],['pemasok','Pemasok','store'],['karyawan','Data Karyawan','users'],['rekening','Rekening & Akun Kas','wallet']]],
  ['Pengaturan',[['mpromo','Diskon & Promo','tag'],['moutlet','Outlet & Struk','store'],['mbayar','Biaya & Metode Bayar','wallet'],['mstaf','Akun Kasir','user'],['mcabang','Cabang','store'],['mkeamanan','Keamanan','user']]]
 ];
 const NAV=OWNER?NAV_ALL.map(([g,l])=>[g==='Data Master'?'Stok':g,l.filter(x=>OWN_OK.includes(x[0]))]).filter(x=>x[1].length):NAV_ALL;
 let NAVOPEN={};try{NAVOPEN=JSON.parse(localStorage.getItem('rbbo_nav')||'{}')||{}}catch(e){}
 const navGrp=k=>{const g=NAV.find(x=>x[1].some(y=>y[0]===k));return g?g[0]:''};
 function navTog(i){const g=NAV[i][0],el=document.getElementById('gp'+i);if(!el)return;el.classList.toggle('shut');NAVOPEN[g]=!el.classList.contains('shut');try{localStorage.setItem('rbbo_nav',JSON.stringify(NAVOPEN))}catch(e){}}
-const TITLE={ring:['Ringkasan','Gambaran umum penjualan dan keuangan'],mcabang:['Cabang','Daftar cabang RB Ban dan alamat Google Sheet tiap cabang'],lappen:['Laporan Penjualan','Metode pembayaran, kategori, dan varian'],analisa:['Analisa Bisnis','Tren, margin, dan sorotan performa'],rsum:['Ringkasan Penjualan','Pendapatan, promo, pengembalian, dan laba kotor'],detail:['Detail Penjualan','Rincian setiap nota dan item yang terjual'],produk:['Penjualan per Produk','Performa tiap produk'],kasir:['Penjualan per Kasir','Kinerja masing-masing kasir'],pkasir:['Produk per Kasir','Produk apa saja yang dijual tiap kasir'],shift:['Laporan Shift','Buka-tutup kasir, rekonsiliasi kas, dan presensi'],cash:['Kas Masuk & Keluar','Pengeluaran operasional dan uang masuk lain'],arus:['Arus Kas & Rekening','Mutasi uang masuk dan keluar per rekening, seperti rekening koran'],
+const TITLE={ring:['Ringkasan','Gambaran umum penjualan dan keuangan'],mkirim:['Kirim Stok','Pindahkan stok ban antar cabang'],mcabang:['Cabang','Daftar cabang RB Ban dan alamat Google Sheet tiap cabang'],lappen:['Laporan Penjualan','Metode pembayaran, kategori, dan varian'],analisa:['Analisa Bisnis','Tren, margin, dan sorotan performa'],rsum:['Ringkasan Penjualan','Pendapatan, promo, pengembalian, dan laba kotor'],detail:['Detail Penjualan','Rincian setiap nota dan item yang terjual'],produk:['Penjualan per Produk','Performa tiap produk'],kasir:['Penjualan per Kasir','Kinerja masing-masing kasir'],pkasir:['Produk per Kasir','Produk apa saja yang dijual tiap kasir'],shift:['Laporan Shift','Buka-tutup kasir, rekonsiliasi kas, dan presensi'],cash:['Kas Masuk & Keluar','Pengeluaran operasional dan uang masuk lain'],arus:['Arus Kas & Rekening','Mutasi uang masuk dan keluar per rekening, seperti rekening koran'],
  pemasok:['Pemasok','Daftar pemasok dan laporan pembelian per pemasok'],fakturbeli:['Faktur Pembelian','Pembelian dari pemasok, hutang, dan pelunasan'],hutang:['Laporan Hutang','Umur hutang, kartu hutang per pemasok, dan riwayat pembayaran'],coa:['Daftar Akun (COA)','Bagan akun dan saldo tiap akun'],plglap:['Penjualan per Pelanggan','Total pembelian, laba, dan produk tiap pelanggan'],fakturjual:['Faktur Penjualan','Penjualan tempo ke pelanggan, piutang, dan penerimaan'],piutang:['Laporan Piutang','Umur piutang, kartu piutang, dan penerimaan'],jurnal:['Jurnal Umum','Jurnal otomatis dari penjualan, pembelian, kas, dan gaji'],buku:['Buku Besar','Mutasi dan saldo berjalan per akun'],lapkeu:['Laporan Keuangan','Neraca saldo, laba rugi, dan neraca'],
  karyawan:['Data Karyawan','Karyawan yang melayani di kasir, gaji pokok, dan keikutsertaan komisi'],komisi:['Komisi','Komisi penjualan, bertingkat dan dibagi bersama oleh yang melayani'],gaji:['Penggajian','Gaji bulanan, tunjangan, komisi, bonus, potongan, dan slip'],
  pelanggan:['Pelanggan','Data pelanggan, harga spesial, dan penjualan per pelanggan'],mbayar:['Biaya & Metode Bayar','Tambah metode bayar dan potongan MDR'],mstaf:['Akun Kasir','Akun login kasir: nama, peran, dan PIN. Sama dengan menu Staf di kasir'],jasa:['Order Jasa','Order layanan dari kasir beserta status pengerjaan dan pembayarannya'],mkat:['Kategori','Urutan, nama, dan daftar kategori produk'],mpaket:['Paket','Jual beberapa item sekaligus dengan satu harga; stok dan HPP mengikuti isinya'],monline:['Harga Online','Harga atau markup tiap produk untuk ShopeeFood, GrabFood, dan GoFood'],mproduk:['Produk & Stok','Tambah, ubah, dan isi stok produk'],mstok:['Riwayat Stok','Catatan stok masuk dan penyesuaian'],mexp:['Expired','Batch yang sudah dan akan kedaluwarsa'],mpromo:['Diskon & Promo','Promo otomatis, voucher, dan poin pelanggan yang ikut ke kasir'],moutlet:['Outlet & Struk','Info outlet dan tampilan struk'],pesanan:['Pesanan & DP','Pesanan dengan uang muka dari kasir, sisa tagihan, dan pelunasan'],rekening:['Rekening & Akun Kas','Daftar rekening, saldo awal, dan penjualan masuk ke rekening mana'],mkeamanan:['Keamanan','Keluar otomatis saat back office tidak dipakai']};
@@ -406,7 +406,7 @@ if(OWNER){
  const _r=render;render=function(){_r.apply(this,arguments);clean()};
  const _d=dlg;dlg=function(){_d.apply(this,arguments);clean()};
 }
-const MG=['mcabang','mkat','monline','mpaket','mproduk','mstok','mexp','mpromo','moutlet','mbayar','mstaf','karyawan','komisi','gaji','rekening','mkeamanan','pelanggan','pemasok'];
+const MG=['mkirim','mcabang','mkat','monline','mpaket','mproduk','mstok','mexp','mpromo','moutlet','mbayar','mstaf','karyawan','komisi','gaji','rekening','mkeamanan','pelanggan','pemasok'];
 
 /* Isi dengan URL Web App (Apps Script) agar login hanya perlu PIN. Kosongkan = URL diminta sekali di layar login. */
 const API_URL='';
@@ -576,6 +576,112 @@ async function brDel(id){
  const L=(cfg.brs||[]).filter(x=>x.id!==id);
  try{await push('cabang',{list:L});cfg.brs=L;saveCfg();closeDlg();render()}catch(x){alert('Gagal: '+x.message)}
 }
+/* ---------- KIRIM STOK antar cabang ---------- */
+const KS={from:'',to:'',src:[],dst:[],items:[],note:'',pend:null,tok:0};
+async function pushTo(url,kind,payload){
+ const r=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'bopush',hp:cfg.hp||'',pin:cfg.pin||'',kind,payload})});
+ const j=await r.json();if(!j.ok)throw new Error(j.err||'Ditolak server');
+}
+async function brProducts(url){
+ let c=null;try{c=await IDB.get(url+'|'+(cfg.hp||''))}catch(e){}
+ const m=new Map(((c&&c.raw&&c.raw.products)||[]).map(o=>[o.id,o])),since=c&&c.since?Math.max(0,c.since-30000):0;
+ const r=await fetch(url+(url.includes('?')?'&':'?')+'action=bopull&hp='+encodeURIComponent(cfg.hp||'')+'&pin='+encodeURIComponent(cfg.pin||'')+(since?'&since='+since:''),{redirect:'follow'});
+ const j=await r.json();if(!j.ok)throw new Error(j.err||'Ditolak server');
+ ((j.data||{}).products||[]).forEach(o=>{if(o&&o.id)m.set(o.id,o)});(((j.dels||{}).products)||[]).forEach(id=>m.delete(id));
+ return[...m.values()].filter(p=>p&&p.id&&!p.bahan);
+}
+const ksStk=p=>p&&!p.notrack&&p.trackStock!==false&&!(p.paket||[]).length;
+const ksKey=p=>String(p.sku||p.barcode||'').trim();
+function ksMatch(p){
+ const k=ksKey(p),n=String(p.name||'').trim().toLowerCase();
+ return(k&&KS.dst.find(x=>ksKey(x)===k))||KS.dst.find(x=>String(x.name||'').trim().toLowerCase()===n)||null;
+}
+function vMKirim(){
+ const L=brList();
+ if(L.length<2)return`<div class="card"><div class="empty">Belum ada cabang lain. Tambahkan dulu di <b>Pengaturan → Cabang</b>.</div></div>`;
+ if(!L.some(b=>b.id===KS.from))KS.from=cfg.cur!=='all'&&L.some(b=>b.id===cfg.cur)?cfg.cur:'home';
+ if(!L.some(b=>b.id===KS.to)||KS.to===KS.from)KS.to=(L.find(b=>b.id!==KS.from)||{}).id;
+ const sel=(k,v)=>`<select onchange="KS.${k}=this.value;${k==='from'?'KS.items=[];':''}KS.pend=null;render()">${L.map(b=>`<option value="${esc(b.id)}" ${v===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>`;
+ return`<div class="card"><h4>Kirim Stok Antar Cabang</h4><p>Sekali simpan: stok cabang asal berkurang dan stok cabang tujuan bertambah. Harga modal ikut terbawa, jadi nilai persediaan tetap benar.</p>
+ <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin:6px 0 14px"><div><label>Dari cabang</label>${sel('from',KS.from)}</div><div style="padding-bottom:12px;font-size:20px">→</div><div><label>Ke cabang</label>${sel('to',KS.to)}</div></div>
+ <div id="ksw"><div class="empty">Memuat produk kedua cabang…</div></div></div>
+ <div class="card"><h4>Riwayat Kirim Stok</h4><p>${cfg.cur==='all'?'Semua cabang':esc(brLabel())} · diambil dari Riwayat Stok</p><div class="tw">${ksHist()}</div></div>`;
+}
+async function ksLoad(){
+ const L=brList(),f=L.find(b=>b.id===KS.from),t=L.find(b=>b.id===KS.to),w=$('#ksw');if(!f||!t||!w)return;
+ const tok=++KS.tok;
+ try{const [a,b]=await Promise.all([brProducts(f.url),brProducts(t.url)]);if(tok!==KS.tok)return;KS.src=a;KS.dst=b;ksDraw()}
+ catch(e){if(tok===KS.tok&&$('#ksw'))$('#ksw').innerHTML=`<div class="empty" style="color:var(--bad)">Gagal memuat produk: ${esc(e.message)}. Pastikan nomor HP dan PIN kamu ada di sheet Staf kedua cabang.</div>`}
+}
+function ksDraw(){
+ const w=$('#ksw');if(!w)return;
+ const src=KS.src.filter(ksStk).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ const opts=src.filter(p=>!KS.items.some(i=>i.id===p.id)).map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · stok ${fq(+p.stock||0)} ${esc(p.unit||'')}</option>`).join('');
+ const rows=KS.items.map((it,i)=>{const p=KS.src.find(x=>x.id===it.id)||{},m=ksMatch(p),bad=m&&!ksStk(m),over=it.qty>(+p.stock||0);
+  return`<tr><td><b>${esc(p.name||'?')}</b><div class="hint" style="${bad?'color:var(--bad)':''}">${bad?'Di cabang tujuan produk ini tidak menghitung stok. Aktifkan "Hitung stok" dulu.':m?'Di tujuan: '+esc(m.name)+' · stok '+fq(+m.stock||0):'Belum ada di cabang tujuan, akan dibuat otomatis'}</div></td><td class="r">${fq(+p.stock||0)}</td><td class="r"><input type="number" min="1" step="any" value="${it.qty}" style="width:90px;${over?'border-color:var(--bad)':''}" onchange="KS.items[${i}].qty=+this.value||0;ksDraw()"></td><td class="r"><button class="btn sm" onclick="KS.items.splice(${i},1);ksDraw()">✕</button></td></tr>`}).join('');
+ const pend=KS.pend?`<div class="card" style="border-left:4px solid var(--bad);border-radius:0 14px 14px 0;margin-top:12px"><b>Pengiriman ${esc(KS.pend.no)} belum selesai.</b> Stok di ${esc(KS.pend.fromName)} sudah dikurangi, tapi gagal ditambahkan ke ${esc(KS.pend.toName)}.<div style="margin-top:8px"><button class="btn pri" onclick="ksRetry(this)">Coba tambahkan lagi ke ${esc(KS.pend.toName)}</button></div></div>`:'';
+ w.innerHTML=`${opts?`<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ks_p" style="flex:2;min-width:220px">${opts}</select><input id="ks_q" type="number" min="1" step="any" value="1" style="width:100px"><button class="btn" onclick="ksAdd()">+ Tambah</button></div>`:`<div class="hint">${src.length?'Semua produk sudah ditambahkan.':'Cabang asal belum punya produk yang menghitung stok.'}</div>`}
+ ${KS.items.length?`<div class="tw" style="margin-top:12px"><table><tr><th>Produk</th><th class="r">Stok asal</th><th class="r">Jumlah kirim</th><th></th></tr>${rows}</table></div>
+ <label>Catatan (opsional)</label><input id="ks_n" value="${esc(KS.note)}" oninput="KS.note=this.value" placeholder="mis. dibawa motor box, sopir Andi">
+ <div class="err" id="ks_e"></div><div style="margin-top:12px"><button class="btn pri" onclick="ksGo(this)">Kirim Stok</button></div>`:''}${pend}`;
+}
+function ksAdd(){
+ const id=($('#ks_p')||{}).value,q=+(($('#ks_q')||{}).value);if(!id)return;
+ if(!(q>0)){alert('Isi jumlah yang dikirim');return}
+ KS.items.push({id,qty:q});ksDraw();
+}
+const ksNo=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return'KS-'+String(d.getFullYear()).slice(2)+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())};
+const ksChunks=a=>{const o=[];for(let i=0;i<a.length;i+=60)o.push(a.slice(i,i+60));return o};
+async function ksDest(P){
+ for(const ch of ksChunks(P.items))await pushTo(P.toUrl,'stock_bulk',{mode:'add',hppMode:'avg',note:P.tNote,items:ch.map(x=>({id:x.dst,qty:x.qty,buyPrice:x.cogs}))});
+}
+async function ksGo(btn){
+ const L=brList(),f=L.find(b=>b.id===KS.from),t=L.find(b=>b.id===KS.to),e=$('#ks_e');
+ if(!f||!t||f.id===t.id){e.textContent='Pilih cabang asal dan tujuan yang berbeda.';return}
+ const its=KS.items.map(it=>({it,p:KS.src.find(x=>x.id===it.id)})).filter(x=>x.p);
+ if(!its.length){e.textContent='Tambahkan produk dulu.';return}
+ for(const {it,p} of its){
+  if(!(it.qty>0)){e.textContent='Jumlah '+p.name+' harus lebih dari 0.';return}
+  if(it.qty>(+p.stock||0)){e.textContent='Stok '+p.name+' di '+f.name+' hanya '+fq(+p.stock||0)+'.';return}
+  const m=ksMatch(p);if(m&&!ksStk(m)){e.textContent=p.name+' di '+t.name+' tidak menghitung stok.';return}
+ }
+ const tot=sum(its,x=>x.it.qty);
+ if(!confirm('Kirim '+its.length+' jenis barang ('+fq(tot)+' unit) dari '+f.name+' ke '+t.name+'?'))return;
+ const no=ksNo(),extra=KS.note.trim()?' · '+KS.note.trim():'';
+ btn.disabled=true;e.style.color='var(--mut)';
+ let step=0;const P={no,fromName:f.name,toName:t.name,toUrl:t.url,tNote:('Terima dari '+f.name+extra).slice(0,100)+' ('+no+')',items:[]};
+ try{
+  e.textContent='Menyiapkan produk di '+t.name+'…';
+  for(const {it,p} of its){
+   let m=ksMatch(p);
+   if(!m){m={id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:p.name,sku:p.sku||p.barcode||'',barcode:p.sku||p.barcode||'',cat:p.cat||'Umum',unit:p.unit||'pcs',price:+p.price||0,cogs:+p.cogs||0,stock:0,minStock:+p.minStock||0,trackStock:true,active:true,bahan:false,recipe:[],recAuto:false,updated:Date.now(),initStock:0};
+    await pushTo(t.url,'product',m);KS.dst.push(m)}
+   P.items.push({src:p.id,dst:m.id,qty:it.qty,cogs:+p.cogs||0});
+  }
+  e.textContent='Mengurangi stok di '+f.name+'…';step=1;
+  for(const ch of ksChunks(P.items))await pushTo(f.url,'stock_bulk',{mode:'out',note:('Kirim ke '+t.name+extra).slice(0,100)+' ('+no+')',items:ch.map(x=>({id:x.src,qty:x.qty}))});
+  step=2;e.textContent='Menambah stok di '+t.name+'…';
+  await ksDest(P);
+  KS.items=[];KS.note='';KS.pend=null;
+  alert('Stok terkirim ('+no+'): '+fq(tot)+' unit dari '+f.name+' ke '+t.name+'.');
+  AC.clear();try{await load()}catch(_){}render();
+ }catch(x){
+  btn.disabled=false;e.style.color='var(--bad)';
+  if(step===2){KS.pend=P;KS.items=[];ksDraw();const e2=$('#ks_e');if(e2){e2.style.color='var(--bad)';e2.textContent=x.message}}
+  else e.textContent='Gagal: '+x.message+(step===1?' (cek Riwayat Stok '+f.name+' sebelum mencoba lagi)':'');
+ }
+}
+async function ksRetry(btn){
+ if(!KS.pend)return;btn.disabled=true;
+ try{await ksDest(KS.pend);alert('Stok '+KS.pend.no+' sudah ditambahkan ke '+KS.pend.toName+'.');KS.pend=null;AC.clear();try{await load()}catch(_){}render()}
+ catch(x){btn.disabled=false;alert('Masih gagal: '+x.message)}
+}
+function ksHist(){
+ const re=/^(Kirim ke|Terima dari) (.*) \((KS-[\w-]+)\)$/;
+ const l=(D.stocklog||[]).filter(x=>re.test(String(x.note||''))&&(cfg.cur!=='all'||/^Kirim ke/.test(x.note))).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200);
+ if(!l.length)return'<div class="empty">Belum ada pengiriman stok</div>';
+ return`<table><tr><th>Waktu</th><th>No</th><th>Produk</th><th class="r">Jumlah</th><th>Keterangan</th></tr>${l.map(x=>{const m=String(x.note).match(re);return`<tr><td>${fmtT(x.ts)}</td><td>${esc(m[3])}</td><td>${esc(x.name)}</td><td class="r" style="color:var(--${m[1]==='Kirim ke'?'bad':'ok'})">${m[1]==='Kirim ke'?'−':'+'}${fq(Math.abs(+x.delta||+x.qty||0))}</td><td>${esc(m[1]+' '+m[2])}</td></tr>`}).join('')}</table>`;
+}
 /* ---------- Logout otomatis bila tidak ada aktivitas ---------- */
 const ACTK='rbbo_act';
 const idleMin=()=>{const v=cfg.idle;return(v===undefined||v===null||v==='')?30:(+v||0)};   // 0 = nonaktif
@@ -740,12 +846,12 @@ function render(){
   return;
  }
  CUR=calc();
- const V={ring:vRing,lappen:vLapPen,rsum:vRsum,analisa:vAnalisa,detail:vDetail,produk:vProduk,kasir:vKasir,pkasir:vPKasir,shift:vShift,cash:vCash,arus:vArus,pelanggan:vPelanggan,pemasok:vPemasok,fakturbeli:vFakturBeli,hutang:vHutang,coa:vCoa,plglap:vPlgLap,fakturjual:vFakturJual,piutang:vPiutang,jurnal:vJurnal,buku:vBuku,lapkeu:vLapKeu,karyawan:vKaryawan,komisi:vKomisi,gaji:vGaji,mproduk:vMProduk,mkat:katHtml,monline:onlHtml,mpaket:pktHtml,mstok:vMStok,mexp:vMExp,mpromo:vMPromo,moutlet:vMOutlet,rekening:vRekening,mkeamanan:vMKeamanan,pesanan:vPesanan,jasa:vJasa,mstaf:vStaf,mbayar:vMBayar,mcabang:vMCabang};
+ const V={ring:vRing,lappen:vLapPen,rsum:vRsum,analisa:vAnalisa,detail:vDetail,produk:vProduk,kasir:vKasir,pkasir:vPKasir,shift:vShift,cash:vCash,arus:vArus,pelanggan:vPelanggan,pemasok:vPemasok,fakturbeli:vFakturBeli,hutang:vHutang,coa:vCoa,plglap:vPlgLap,fakturjual:vFakturJual,piutang:vPiutang,jurnal:vJurnal,buku:vBuku,lapkeu:vLapKeu,karyawan:vKaryawan,komisi:vKomisi,gaji:vGaji,mproduk:vMProduk,mkat:katHtml,monline:onlHtml,mpaket:pktHtml,mstok:vMStok,mexp:vMExp,mpromo:vMPromo,moutlet:vMOutlet,rekening:vRekening,mkeamanan:vMKeamanan,pesanan:vPesanan,jasa:vJasa,mstaf:vStaf,mbayar:vMBayar,mcabang:vMCabang,mkirim:vMKirim};
  if(OWNER&&!OWN_OK.includes(tab))tab='ring';
  if(D&&isLocked(tab))tab='ring';
  const ti=TITLE[tab]||TITLE.ring,isM=MG.includes(tab);
  $('#app').innerHTML=`<div class="shell"><aside class="side" id="side"><div class="brand"><div class="logo"><img class="rbimg" src="${RBLOGO}" alt="RB BAN">RB<span>POS</span></div>${brSel()}</div>
- ${NAV.map(([g,l],gi)=>{const open=l.some(x=>x[0]===tab)||(NAVOPEN[g]!==undefined?NAVOPEN[g]:g==='Utama');return`<div class="gp ${open?'':'shut'}" id="gp${gi}"><div class="ng" onclick="navTog(${gi})">${g}<i class="chv"></i></div>${l.filter(x=>x[0]!=='mexp'||hasExp()).map(([k,n,i])=>`<button class="ni ${tab===k?'on':''}" onclick="go('${k}');toggleSide(false)" style="${isLocked(k)?'opacity:.6':''}">${ic(i,19)}<span>${n}</span>${isLocked(k)?`<span style="margin-left:auto">${ic('lock',15)}</span>`:''}</button>`).join('')}</div>`}).join('')}
+ ${NAV.map(([g,l],gi)=>{const open=l.some(x=>x[0]===tab)||(NAVOPEN[g]!==undefined?NAVOPEN[g]:g==='Utama');return`<div class="gp ${open?'':'shut'}" id="gp${gi}"><div class="ng" onclick="navTog(${gi})">${g}<i class="chv"></i></div>${l.filter(x=>(x[0]!=='mexp'||hasExp())&&(x[0]!=='mkirim'||brList().length>1)).map(([k,n,i])=>`<button class="ni ${tab===k?'on':''}" onclick="go('${k}');toggleSide(false)" style="${isLocked(k)?'opacity:.6':''}">${ic(i,19)}<span>${n}</span>${isLocked(k)?`<span style="margin-left:auto">${ic('lock',15)}</span>`:''}</button>`).join('')}</div>`}).join('')}
  <div class="sf"><div class="who">${cfg.nm?esc(cfg.nm)+'<br>':''}Diperbarui ${fmtH(loadedAt)}</div><div class="acts"><button class="btn" onclick="refresh()" title="Muat ulang">${ic('refresh',16)}</button><button class="btn" onclick="toggleTheme()" title="Tema">${ic('moon',16)}</button><button class="btn" onclick="logout()" title="Keluar">${ic('out',16)}</button></div></div></aside>
  <div class="scrim" onclick="toggleSide(false)"></div>
  <main class="main"><div class="tb"><button class="hb" onclick="toggleSide()">${ic('menu',22)}</button><div><h2>${ti[0]}</h2><div class="sub">${ti[1]}</div></div><div class="r">${isM?'':esc(perLabel())+'<br>'}Diperbarui ${fmtH(loadedAt)}</div><div class="who2"><span class="av">${esc(ini((D.outlet&&D.outlet.name)||cfg.nm||'TP'))}</span><span class="wn">${esc(brLabel())}</span></div></div>
@@ -754,6 +860,7 @@ function render(){
  if(tab==='produk')ppRender();
  if(tab==='moutlet'){prevStruk();brcInit()}
  if(tab==='mstok')slRows();
+ if(tab==='mkirim')ksLoad();
  if(tab==='mexp')exRows();
  if(tab==='pelanggan'&&window.PL)PL.mount('plv');
 }
