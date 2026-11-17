@@ -2442,7 +2442,7 @@ function vMProduk(){
  const tabs=`<div class="chips" style="display:none">${[['jual','Produk']].map(([k,l])=>`<button class="chip ${PM.k===k?'on':''}" onclick="PM.k='${k}';PM.q='';PM.cat='';PM.low=false;render()">${l}</button>`).join('')}</div>`;
  const kpi=isR?`<div class="kg"><div class="kc"><small>Produk beresep</small><b>${rec.length}</b></div><div class="kc"><small>Bahan baku terdaftar</small><b>${D.products.filter(p=>p.bahan).length}</b></div></div>`
   :`<div class="kg"><div class="kc"><small>Jumlah ${isB?'bahan baku':'produk'}</small><b>${grp.length}</b></div><div class="kc"><small>Stok menipis</small><b style="color:var(--${low.length?'bad':'ok'})">${low.length}</b></div><div class="kc"><small>Nilai stok (HPP)</small><b>${rp(sum(grp,p=>(+p.stock||0)*(+p.cogs||0)))}</b></div></div>`;
- const search=`<input placeholder="Cari nama, kategori, kode…" value="${esc(PM.q)}" oninput="PM.q=this.value;mpRows()">`;
+ const search=`<input placeholder="Cari nama, kategori, kode…" value="${esc(PM.q)}" oninput="PM.q=this.value;clearTimeout(window.MPT);window.MPT=setTimeout(mpRows,150)">`;
  const catSel=`<select onchange="PM.cat=this.value;mpRows()"><option value="">Semua kategori</option>${cats.map(c=>`<option value="${esc(c)}" ${PM.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>`;
  const lowBtn=`<button class="btn ${PM.low?'on':''}" onclick="PM.low=!PM.low;render()">Stok menipis</button>`;
  const tool=isR?`<div class="tool">${search}<span style="margin-left:auto"><button class="btn pri" onclick="prodnForm()">${ic('plus',16)} Catat Produksi</button></span></div>`
@@ -2479,15 +2479,30 @@ function mpFiltered(){
  return D.products.filter(p=>pmKind(p)&&(!PM.cat||p.cat===PM.cat)&&(!PM.low||(p.active!==false&&(+p.stock||0)<=(+p.minStock||0)&&p.trackStock!==false))&&(!q||(p.name+' '+(p.cat||'')+' '+(p.sku||'')).toLowerCase().includes(q)));
 }
 function mpRows(){const t=$('#mpt');if(t)t.innerHTML=mpBody()}
+const MPV={l:[],n:0,step:80};
 function mpTable(l){
  if(!l.length)return'<div class="empty">Belum ada produk. Tekan “Tambah Produk”.</div>';
- return`<table><tr><th>Produk</th><th>Kategori</th><th class="r">Harga</th><th class="r">HPP</th><th class="r">Margin</th><th class="r">Stok</th><th>Status</th><th></th></tr>${l.map(p=>{
+ MPV.l=l;MPV.n=Math.min(l.length,MPV.step);setTimeout(mpWatch,0);
+ return`<table><tr><th>Produk</th><th>Kategori</th><th class="r">Harga</th><th class="r">HPP</th><th class="r">Margin</th><th class="r">Stok</th><th>Status</th><th></th></tr>${l.slice(0,MPV.n).map(mpRow).join('')}${l.length>MPV.n?`<tr id="mpMore"><td colspan="8" class="mut" style="text-align:center;padding:14px">Memuat ${l.length-MPV.n} produk lagi…</td></tr>`:''}</table>`;
+}
+function mpWatch(){
+ const m=document.getElementById('mpMore');if(window.MPIO)window.MPIO.disconnect();if(!m)return;
+ if(!('IntersectionObserver' in window)){mpMore(true);return}
+ window.MPIO=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))mpMore()},{rootMargin:'800px'});
+ window.MPIO.observe(m);
+}
+function mpMore(all){
+ const m=document.getElementById('mpMore');if(!m)return;
+ const a=MPV.n;MPV.n=all?MPV.l.length:Math.min(MPV.l.length,a+MPV.step*2);
+ m.insertAdjacentHTML('beforebegin',MPV.l.slice(a,MPV.n).map(mpRow).join(''));
+ if(MPV.n>=MPV.l.length){m.remove();window.MPIO&&window.MPIO.disconnect()}else m.firstElementChild.textContent='Memuat '+(MPV.l.length-MPV.n)+' produk lagi…';
+}
+function mpRow(p){{
   const m=p.price?((p.price-(p.cogs||0))/p.price*100):0,s=+p.stock||0,lowS=p.trackStock!==false&&s<=(+p.minStock||0);
   return`<tr><td><b>${esc(p.name)}</b>${p.bahan?' <span class="badge k">Bahan baku</span>':(p.paket&&p.paket.length)?' <span class="badge g">Paket</span>':(p.recipe&&p.recipe.length)?' <span class="badge g">Resep</span>':''}${p.sku?'<br><small class="mut">'+esc(p.sku)+'</small>':''}</td><td>${esc(p.cat||'Umum')}</td><td class="r">${rp(p.price)}</td><td class="r">${rp(p.cogs)}</td><td class="r" style="color:var(--${m<=0?'bad':m<10?'warn':'ok'})">${pct(m)}</td>
   <td class="r">${p.trackStock===false?'<span class="mut">tanpa stok</span>':`<b style="color:var(--${lowS?'bad':'tx'})">${fq(s)}</b> ${esc(p.unit)}${lowS?' <span class="badge v">menipis</span>':''}`}</td>
   <td>${p.active===false?'<span class="badge v">Nonaktif</span>':'<span class="badge g">Aktif</span>'}</td>
-  <td style="text-align:right">${p.trackStock===false?'':`<button class="btn sm" onclick="stockForm('${p.id}')">+ Stok</button> `}<button class="btn sm" onclick="prodForm('${p.id}')">Ubah</button></td></tr>`}).join('')}</table>`;
-}
+  <td style="text-align:right">${p.trackStock===false?'':`<button class="btn sm" onclick="stockForm('${p.id}')">+ Stok</button> `}<button class="btn sm" onclick="prodForm('${p.id}')">Ubah</button></td></tr>`}}
 function exportMProduk(){csv('Produk',[['Nama','Kode','Kategori','Satuan','Harga Jual','HPP','Stok','Stok Minimum','Aktif'],...mpFiltered().map(p=>[p.name,p.sku||'',p.cat||'',p.unit,p.price,p.cogs||0,p.stock||0,p.minStock||0,p.active===false?'Tidak':'Ya'])])}
 function chpV(p,k){const c=(p.chp||{})[k],m=(p.chm||{})[k];return c>0?['price',c]:(m&&+m.v>0?[m.m,m.v]:['auto',''])}
 function chpBox(p){return`<div style="margin-top:8px"><label>Harga &amp; markup per platform online (opsional)</label><div class="hint">Atur per produk: harga pas, naik persen, atau naik nominal. "Ikut markup umum" = pakai Pengaturan Online di kasir. Varian dan topping tetap ditambahkan.</div><label style="display:flex;gap:8px;align-items:center;margin:6px 0 8px;font-weight:400"><input type="checkbox" id="f_mku" ${p.mku?'checked':''}> Kena markup umum (dipakai bila pengaturan Online di kasir = hanya produk dicentang)</label>${Object.keys(CH).map(k=>{const [t,v]=chpV(p,k);const o=[['auto','Ikut markup umum'],['price','Harga pas (Rp)'],['pct','Naik persen (%)'],['rp','Naik nominal (Rp)']].map(x=>`<option value="${x[0]}" ${x[0]===t?'selected':''}>${x[1]}</option>`).join('');return`<div class="chr" data-ch="${k}" style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="width:90px;flex:none">${CH[k]}</span><select class="chs" style="flex:1;min-width:0">${o}</select><input class="chpi" type="number" step="any" style="width:90px" value="${v}" oninput="const s=this.parentNode.querySelector('.chs');if(s.value==='auto'&&this.value)s.value='price'"></div>`}).join('')}</div>`}
